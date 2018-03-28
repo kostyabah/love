@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    *{
+    
+      box-sizing: border-box;
+  
+    }  
+     body {
+        margin: 0px;
+        padding: 0px;
+      }
+    svg{
+      position: absolute;
+      width: 85%;
+      height: 100%;
+      border: 3px solid black;
+    }
+    .tool{
+      position: absolute;
+      left : 85%;
+      width: 15%;
+      height: 100%;
+      background: magenta;
+    }.all{
+      position: absolute;
+      width: 100%;
+      height: 10px;
+      border: 2px solid white;
+    }
+    
+    .start{
+      
+      opacity: .5;
+    }
+    .start:first-type-of:hover{
+      fill : black;
+      opacity: 1;
+      r: 10;
+    }
+     
+  </style>
+  
+
+  <script src = "mvc.js"></script>
+</head>
+<body>
+
+  <div> 
+    <svg dblclick-on=create
+       mousemove-point=move
+      mousedown-point=down mouseup-point=up >
+
+    {{  
+      -list.forEach(function(put, index){
+
+       if(put.lines.length != 1) }} 
+    <path id = [index]
+      d = [put.text] fill = [tool.rgb]
+      stroke = black stroke-width=1
+    />
+
+      {{ /); 
+        -path.lines.forEach(function(p, i){ 
+      }}
+    <g> 
+      <line stroke = blue 
+      x1 = [p.start.x] y1=[p.start.y] 
+      x2 = [p.end.x] y2 = [p.end.y] 
+      />
+      {{ if(i==0){ }}
+      <circle class = start r = 5
+      fill = red 
+      cx = [p.start.x] cy=[p.start.y]       
+      />
+      {{ /else{ }}
+      <circle class = start r = 5
+      fill = blue 
+      cx = [p.start.x] cy=[p.start.y]       
+      />
+      {{/}}
+      <circle class = end r = 5 stroke = blue
+      fill = #fff 
+      cx = [p.end.x] cy = [p.end.y]          
+      /> 
+    </g>
+    {{ /); }}
+    </svg>
+    <div class="tool" change-dlg=select>
+      {{console.log(10)}}
+        
+      <input id=red type="range" min="0" max="255" value=[-red] >
+      <input id=green type="range" min="0" max="255" value=[-green]>
+      <input id= blue type="range" min="0" max="255" value=[-blue]>
+      <div class=all  
+      style="background: rgb([-red], [-green], [-blue])" 
+      > 
+      </div>
+    </div>
+
+  </div>
+  
+    
+<script>
+  var tool = new App(".tool",{
+    red: 0, green: 0, blue: 0,
+    get rgb(){
+      return `rgb(${this.red}, ${this.green},${this.blue})`
+    },
+    select: function(tg){
+      console.log(tg)
+      this[tg.id] = tg.value;
+    }
+  })
+
+  var Path = function(){
+    this.index = -1;
+    this.lines = [];
+    this.text = ""
+    this.active = true;
+  };
+  Path.prototype = {
+    addLine : function(line){
+      this.lines.push(line);
+      this.index++
+    },
+    move : function(point){
+      this.lines[this.index].end = point
+    },
+    close : function(){
+      this.lines.push(this.lines[0])
+    },
+    get text(){
+        
+      return this.lines.reduce(function(res, line, ind){
+        var st_x = line.start.x,
+            st_y = line.start.y,
+            end_x = line.end.x,
+            end_y = line.end.y,
+            vec_x = 2*st_x - end_x,
+            vec_y = 2*st_y - end_y;
+        if(ind==0){
+          return res +`M ${st_x},${st_y} C ${end_x},${end_y} `  
+        }else if(ind==1){
+          return res +`${vec_x},${vec_y} ${st_x},${st_y} ` 
+        }else{
+          return res + `S ${vec_x},${vec_y} ${st_x},${st_y}`  
+        }
+      }, "");
+      
+    }  
+  }
+  var Line = function (point){
+    this.start = point
+    this.end = point
+  }
+  Line.prototype = {}
+
+  var svg = new App('svg',{
+    index : 0,
+    get path(){
+      return this.list[this.index];
+    },
+    action : false,
+    press : 0,
+    list : [new Path()],
+    down : function (point) {
+      this.path.addLine(new Line(point));
+      this.action = true 
+    },
+    move : function(point){
+      this.press = 0;
+      if(this.action)
+        this.path.move(point);
+    },
+    create : function(){
+      console.log("hi")
+    }, 
+    up : function(point){
+      this.action = false
+      this.press++;
+      if(this.press == 1){
+        this.path.move(point);    
+      }else{
+        this.press = 0;
+        this.path.lines.pop();
+        this.path.lines.pop();
+        this.path.close()
+        this.list.push(new Path());
+        this.index++;    
+      }
+
+    },
+    fill : function(){
+      return "#00000011"
+    }
+      
+
+  })
+
+  
+    
+</script>
+</body>
+</html>

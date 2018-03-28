@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>eval</title>
+   <script src="mvc.js">  </script> 
+</head>
+<body>
+  <div id=tmpl> 
+    <h1>country [-country]</h1>
+    {{if(-on){ }}
+    <ol>
+    {{ var n=0; while((n==9)==false){ }}
+      {{ if(n%2) }}
+      <li style="color:red">[n]</li>
+      <li style="color:red">[2*n]</li>  
+      {{ else }}
+      <li style="color:blue">[2*n]</li>
+      
+    {{ n++ @ }}
+    </ol>
+    {{@}}
+  </div>
+   <script> 
+      
+      var data = {
+        country : "Ukranian",
+        on : true,
+        city : ["odessa", "kyiv", "donetsk"]
+      }
+      
+      var app = new App("#tmpl", data);
+   </script>     
+</body>
+</html>
