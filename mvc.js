@@ -79,6 +79,7 @@ App.prototype = {
   render : function(){
     if(!equals(this._data, this.json)){
       var render = compile(this._tmpl);
+      
       this._el.innerHTML = render(this._data);
       this._json = JSON.stringify(this._data);    
     }

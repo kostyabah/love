@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="canvas.js"></script>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            margin: 0px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="1000" height="650"></canvas>
+    <script>
+    var canvas = new Canvas("canvas",{
+        x: 100, width: 200, 
+        y: 100, height: 200,
+        click : function(p){
+            
+            this.fill = 'cyan';
+            
+        },
+        fill : "#555"
+    }, function(data){
+        //c.clearRect(0, 0, 1000, 650);
+        //data.animate();
+        this
+        .rect(data.x, data.y, data.width, data.height)
+        .on({
+            mousemove : data.click 
+        })
+        ._style(data);  
+    }).setEvent({
+        mousemove : function(point){
+            this.fill = 'rgba(255,0,0,100)';
+            this.stroke = "blue";
+            this.lineWidth = 10;
+            //this.x = point.x;
+            //this.y = point.y;
+            //console.log(this);
+        }
+    }).animate(function(){
+        this.x = (this.x+1) % 1000;
+        this.y = (this.y+1) % 600;     
+    })
+    </script>
+</body>
+</html>      

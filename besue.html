@@ -4,205 +4,396 @@
   <meta charset="UTF-8">
   <title>Document</title>
   <style>
-    *{
-    
-      box-sizing: border-box;
+  *{
   
-    }  
-     body {
-        margin: 0px;
-        padding: 0px;
-      }
-    svg{
-      position: absolute;
-      width: 85%;
-      height: 100%;
-      border: 3px solid black;
-    }
-    .tool{
-      position: absolute;
-      left : 85%;
-      width: 15%;
-      height: 100%;
-      background: magenta;
-    }.all{
-      position: absolute;
-      width: 100%;
-      height: 10px;
-      border: 2px solid white;
-    }
-    
-    .start{
-      
-      opacity: .5;
-    }
-    .start:first-type-of:hover{
-      fill : black;
-      opacity: 1;
-      r: 10;
-    }
-     
+	box-sizing: border-box;
+  
+  }  
+   body {
+	margin: 0px;
+	padding: 0px;
+	}
+  canvas{
+	position: absolute;
+	width: 1000px;
+	height: 650px;
+	
+  }
+  .tool{
+	position: absolute;
+	left : 85%;
+	width: 15%;
+	height: 100%;
+	background: magenta;
+  }.all{
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	border: 2px solid white;
+  }
+  
+  .start{
+	
+	opacity: .5;
+  }
+  .start:first-type-of:hover{
+	fill : black;
+	opacity: 1;
+  
+  }
+  input[type="range"]{
+	width: 100%;
+  } 
   </style>
   
-
-  <script src = "mvc.js"></script>
+  <script src="mvc.js"></script>
+  <script src = "canvas.js"></script>
+  <script>
+  
+  </script>
 </head>
 <body>
-
   <div> 
-    <svg dblclick-on=create
-       mousemove-point=move
-      mousedown-point=down mouseup-point=up >
+  <canvas width="1000" height="650" id="canvas"></canvas>
 
-    {{  
-      -list.forEach(function(put, index){
-
-       if(put.lines.length != 1) }} 
-    <path id = [index]
-      d = [put.text] fill = [tool.rgb]
-      stroke = black stroke-width=1
-    />
-
-      {{ /); 
-        -path.lines.forEach(function(p, i){ 
-      }}
-    <g> 
-      <line stroke = blue 
-      x1 = [p.start.x] y1=[p.start.y] 
-      x2 = [p.end.x] y2 = [p.end.y] 
-      />
-      {{ if(i==0){ }}
-      <circle class = start r = 5
-      fill = red 
-      cx = [p.start.x] cy=[p.start.y]       
-      />
-      {{ /else{ }}
-      <circle class = start r = 5
-      fill = blue 
-      cx = [p.start.x] cy=[p.start.y]       
-      />
-      {{/}}
-      <circle class = end r = 5 stroke = blue
-      fill = #fff 
-      cx = [p.end.x] cy = [p.end.y]          
-      /> 
-    </g>
-    {{ /); }}
-    </svg>
-    <div class="tool" change-dlg=select>
-      {{console.log(10)}}
-        
-      <input id=red type="range" min="0" max="255" value=[-red] >
-      <input id=green type="range" min="0" max="255" value=[-green]>
-      <input id= blue type="range" min="0" max="255" value=[-blue]>
-      <div class=all  
-      style="background: rgb([-red], [-green], [-blue])" 
-      > 
-      </div>
-    </div>
-
+  <div class="tool" change-dlg=select>
+  
+	
+	<input id=red type="range" min="0" max="255" value=[-red] >
+	<input id=green type="range" min="0" max="255" value=[-green]>
+	<input id=blue type="range" min="0" max="255" value=[-blue]>
+	<input id=alfa type="range" min="0" max="100" value=[-alfa]>
+	<div class=all  style="background: [-rgb]" > </div>
+  
   </div>
-  
-    
+
+  </div>    
 <script>
+ 
   var tool = new App(".tool",{
-    red: 0, green: 0, blue: 0,
-    get rgb(){
-      return `rgb(${this.red}, ${this.green},${this.blue})`
-    },
-    select: function(tg){
-      console.log(tg)
-      this[tg.id] = tg.value;
-    }
+		red: 0, green: 0, blue: 0, alfa: 25,
+		get rgb(){
+			return `rgba(${this.red}, ${this.green},${this.blue},${this.alfa/100})`
+		},
+		select: function(tg){
+			this[tg.id] = tg.value;
+			canvas.color = this.rgb;
+		}
   })
-
-  var Path = function(){
-    this.index = -1;
-    this.lines = [];
-    this.text = ""
-    this.active = true;
-  };
-  Path.prototype = {
-    addLine : function(line){
-      this.lines.push(line);
-      this.index++
-    },
-    move : function(point){
-      this.lines[this.index].end = point
-    },
-    close : function(){
-      this.lines.push(this.lines[0])
-    },
-    get text(){
-        
-      return this.lines.reduce(function(res, line, ind){
-        var st_x = line.start.x,
-            st_y = line.start.y,
-            end_x = line.end.x,
-            end_y = line.end.y,
-            vec_x = 2*st_x - end_x,
-            vec_y = 2*st_y - end_y;
-        if(ind==0){
-          return res +`M ${st_x},${st_y} C ${end_x},${end_y} `  
-        }else if(ind==1){
-          return res +`${vec_x},${vec_y} ${st_x},${st_y} ` 
-        }else{
-          return res + `S ${vec_x},${vec_y} ${st_x},${st_y}`  
-        }
-      }, "");
-      
-    }  
-  }
-  var Line = function (point){
-    this.start = point
-    this.end = point
-  }
-  Line.prototype = {}
-
-  var svg = new App('svg',{
-    index : 0,
-    get path(){
-      return this.list[this.index];
-    },
-    action : false,
-    press : 0,
-    list : [new Path()],
-    down : function (point) {
-      this.path.addLine(new Line(point));
-      this.action = true 
-    },
-    move : function(point){
-      this.press = 0;
-      if(this.action)
-        this.path.move(point);
-    },
-    create : function(){
-      console.log("hi")
-    }, 
-    up : function(point){
-      this.action = false
-      this.press++;
-      if(this.press == 1){
-        this.path.move(point);    
-      }else{
-        this.press = 0;
-        this.path.lines.pop();
-        this.path.lines.pop();
-        this.path.close()
-        this.list.push(new Path());
-        this.index++;    
-      }
-
-    },
-    fill : function(){
-      return "#00000011"
-    }
-      
-
-  })
-
+ 
   
-    
+  var Spider = {
+		x : 0, y: 0,
+		init : function(point){
+			this.x = point.x;
+			this.y = point.y
+		},
+		translate : function(point){
+			var that = this;
+			console.log(point);
+			return function(line){
+				line.start.x += point.x - that.x;
+				line.start.y += point.y - that.y;
+				line.end.x += point.x - that.x;
+				line.end.y += point.y - that.y;
+			}
+		},
+		getVector: function(point){
+			return {
+				x : point.x - this.x,
+				y : point.y - this.y
+			}
+		},
+		transform : function(last, current){
+			var last = this.getVector(last),
+				current = this.getVector(current),
+				length = last.x * last.x + last.y * last.y
+				cos = (last.x * current.x + last.y * current.y) / length,
+				sin = (-last.x * current.y + last.y * current.x) / length,
+				that = this; 
+			return function(point){
+				point = that.getVector(point);
+				return {
+					x: that.x + point.x * cos - point.y * sin,
+					y: that.y + point.x * sin + point.y * cos 
+				}
+			}
+		}
+	};
+
+  var Line = function (path){
+		this.path = path;
+		this.changeStart = false;
+		bind(this);
+  }
+  Line.prototype = {
+		set : function(point){
+			this.start = Object.assign({}, point);
+			this.end = Object.assign({}, point);
+			
+		},
+		setMain : function(point){
+			model.path = this.path;
+			var index = this.path.lines.indexOf(this) + 1;
+			if(this.path.lines.length > index){
+				var pre = this.path.lines.slice(index);
+				var post = this.path.lines.slice(0, index);
+				this.path.lines = pre.concat(post);
+			}else{
+				this.path.edit =! this.path.edit;
+			}
+				
+		},
+		moveStart : function(point){
+			//console.log(this)
+			this.end.x += point.x - this.start.x
+			this.end.y += point.y - this.start.y
+			//this.start.x = point.x;
+			this.start = Object.assign({}, point);
+			this.path.active = this;
+			this.changeStart = true;    
+		},
+		moveEnd : function(point){
+		// console.log(this)
+			this.end = Object.assign({}, point);
+			//this.end = point.y;
+			this.path.active = this;
+			this.changeStart = false;
+		},
+		move : function(point){
+			if(this.changeStart){
+				this.moveStart(point);
+			}else{
+				this.moveEnd(point);
+			}
+		},
+		delete : function(){
+			this.setMain();
+			this.path.lines.pop();
+		}
+  }
+	
+	var Path = function(){
+		this.lines = [];
+		this.fill = tool.rgb;
+		bind(this);
+  	};
+	Path.prototype = {
+		get edit(){
+			var index = model.list.lastIndexOf(this);
+			return index == model.index ;
+		},
+		get center(){
+			var result = this.lines.reduce(function(sum, point){
+				return {
+					x : sum.start.x + line.start.x,
+					y : sum.start.y + line.start.y
+				}
+			}, {x: 0, y: 0})
+			return {
+				x : result.x / this.lines.length,
+				y : result.y / this.lines.length
+			}
+		},
+		translate : function(point){
+			this.lines.forEach(Spide.translate(point));	
+		},
+		clone:  function(){
+			var clone = new Path();
+			this.lines.forEach(function(line){
+				clone.addLine(line.start);
+				clone.move(line.end);
+			});
+			return clone;
+		},
+		select : function(point){
+			model.path.lines.pop();
+			//model.path = this;
+			if(this.edit){
+				model.path = this.clone();
+			}else{
+				model.path = this;
+			}
+							
+		},
+		unselect : function(point) {
+			model.path.lines.pop();
+			this.selected = false;
+		},
+		addLine : function(point){
+			this.active = new Line(this);  
+			this.active.set(point);
+			this.lines.push(this.active);	 
+		},
+		move : function(point){
+			this.active.move(point);
+		},
+		
+		svg: function(res, line, ind){
+		
+			var st_x = line.start.x,
+				st_y = line.start.y,
+				end_x = line.end.x,
+				end_y = line.end.y,
+				vec_x = 2*st_x - end_x,
+				vec_y = 2*st_y - end_y;
+			if(ind==0){
+				return res +`M ${st_x},${st_y} C ${end_x},${end_y} `  
+			}else if(ind==1){
+				return res +`${vec_x},${vec_y} ${st_x},${st_y} ` 
+			}else{
+				return res + `S ${vec_x},${vec_y} ${st_x},${st_y}`  
+			}
+		},
+		get text(){
+			if(this.lines.length) 
+				return this.lines.concat(this.lines[0]).reduce(this.svg, "");
+			else
+				return 'M 0,0'   
+		}
+  
+  }
+  var model = {
+	index : 0,
+	
+	get path(){
+		return this.list[this.index]
+	},
+	set path(value){
+		var index = this.list.indexOf(value);
+		
+		if(index == -1){
+			this.index = this.list.length;
+			this.list.push(value);
+		}else{
+			this.index = index;
+		}
+	},
+	list : [],
+
+	create : function(point){
+		if(true){
+			this.path.addLine(point);
+		}else{
+			Spider.init(point)
+		}
+	},
+	done: function(point){
+		if(true){
+			this.path.move(point);
+		}else{
+			//alert('hello')
+			this.list.forEach(function(path){
+				if(path.isSelect)
+					path.translate(point);	
+			})
+			Spide.init(point);
+			
+		}
+		
+	},
+	new : function(point){
+		this.path.lines.pop();
+		this.list.forEach(function(path){
+			path.selected = false;
+			//path.index = -1;
+		})
+		this.index = this.list.length;
+		this.list.push(new Path());
+	},
+	set color (rgb){
+		this.path.fill = rgb;
+	},
+	
+	
+	get can_changes(){
+		return this.list.filter(function(path){
+			return path.selected 	
+		}).reduce(function(res, path){
+			return res.concat(path.lines);
+		}, [])
+	},
+  }
+  model.path = new Path();
+  var canvas = new Canvas('canvas', model, function(state){
+	//console.log(state.list);  
+	this  
+  	.each(state.list, (element, index) => {
+		return this
+		.svg(element.text)
+		.on({
+			open: state.create,
+			change : state.done,
+			enter : element.select,
+			other : element.unselect
+		})
+		._style(element)
+	})
+		  
+	.if(state.path.edit, 
+	()=>{ return this
+		._style(state.path)
+		.each(state.path.lines, (line, index)=>{
+			return this
+			.moveTo(line.start.x, line.start.y)
+			.lineTo(line.end.x, line.end.y)
+			._style({
+				stroke : "lightgrey", 
+				lineWidth : 3
+			})
+			
+			.if(index == state.path.lines.length-1,
+			()=>{
+				return this
+				.rect(line.start.x-5, line.start.y-5, 10, 10)
+				.on({
+					change :line.moveStart,
+					other : line.delete,
+					enter : line.setMain
+				})
+				._style({
+					fill : 'blue',
+					stroke : 'black',
+					lineWidth : 3,
+				})
+			},
+			()=> {
+				return this
+				.arc(line.start.x, line.start.y, 5, 0, 2*Math.PI)
+				.on({
+					change :line.moveStart,
+					other : line.delete,
+					enter : line.setMain
+				})
+				._style({
+					fill : 'red',
+					stroke : 'black',
+					lineWidth : 3,
+				})
+			})
+			.arc(line.end.x, line.end.y, 5, 0, 2*Math.PI)
+			.on({
+				change :line.moveEnd,
+				other : line.delete
+			})
+			._style({
+				fill : 'yellow',
+				stroke : 'black',
+				lineWidth : 3
+			})
+		})
+	})
+  
+})
+  
+  //canvas.list = [new Path(canvas._data)];
+  canvas.on({
+		open : canvas.create,
+		change : canvas.done,
+		other : canvas.new
+  })
+  
+  
 </script>
 </body>
 </html>

@@ -1,35 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <title>eval</title>
-   <script src="mvc.js">  </script> 
+	 <meta charset="UTF-8">
+	 <title>eval</title>
+	 <script src="canvas.js">  </script> 
 </head>
 <body>
-  <div id=tmpl> 
-    <h1>country [-country]</h1>
-    {{if(-on){ }}
-    <ol>
-    {{ var n=0; while((n==9)==false){ }}
-      {{ if(n%2) }}
-      <li style="color:red">[n]</li>
-      <li style="color:red">[2*n]</li>  
-      {{ else }}
-      <li style="color:blue">[2*n]</li>
-      
-    {{ n++ @ }}
-    </ol>
-    {{@}}
-  </div>
-   <script> 
-      
-      var data = {
-        country : "Ukranian",
-        on : true,
-        city : ["odessa", "kyiv", "donetsk"]
-      }
-      
-      var app = new App("#tmpl", data);
-   </script>     
+	<canvas id ="radug"width=1000 height=600></canvas>
+	 <script> 
+			
+			var canva = document.querySelector("canvas");
+			/*
+			canva.oncontextmenu = function(e){
+				alert("hi");
+				return false;
+			}
+			canva.onclick = function(e){
+				alert('we was here');
+				//return false;
+			}
+			*/
+			function Rad(n){
+				
+				this.start = n*Math.PI/3;
+				this.end = this.start + Math.PI/3;
+				this.hue = 60*n
+				
+				this.close = {
+					x: Math.cos(this.start),
+					y: Math.sin(this.start)
+				}
+				
+			}
+
+			var radials = [0,2,3,4,5,6, 7].map(function(n){
+				return new Rad(n);
+			})
+			var holst = new Canvas('radug',{
+				list : radials,
+				center : {
+					x: 300, y : 300
+				},
+				show :function(p){
+					this.center = p;
+				}
+			},
+			function(data){
+				this
+				.each(data.list, (element) =>{ 
+							
+					return this
+					.arc(300, 300, 200, element.start, element.end)
+					.lineTo(300,300)
+					.lineTo(300+200*element.close.x,300+200*element.close.y)
+					.on({
+						change: data.show  
+					})
+					._style({
+						fill : `hsl(${element.hue}, 50%, 50%)`,
+						stroke : `hsl(${element.hue}, 50%, 50%)`
+					})
+				})
+				.arc(data.center.x, data.center.y, 200, 0, 2*Math.PI)
+				
+				._style({
+					fill: {
+						type : 'radial',
+						param : [300, 300, 0, 300, 300, 200],
+						colors : {
+							0 : "white",
+							100 : 'rgba(255, 255, 255, 0)'
+						}  
+					}  
+				})
+			})
+			holst.on({
+				change: function(){},
+
+			})
+			
+			
+	 </script>     
+
 </body>
 </html>
